@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    color: #0F172A;
+    background-color: #F4F8FC;
+    min-height: 100vh;
+  }
+  
+  .font-mono {
+    font-family: 'Space Mono', monospace;
+  }
+}
+
+/* Placa de Cristal Fosco (Luxury Frosted Crystal Glass) */
+.crystal-plate {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(22px) saturate(180%);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.92);
+  box-shadow: 
+    0 20px 45px -10px rgba(14, 165, 233, 0.08),
+    0 8px 20px -6px rgba(15, 23, 42, 0.03),
+    inset 0 1.5px 2px rgba(255, 255, 255, 1),
+    inset 0 -1px 2px rgba(186, 230, 253, 0.2);
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.crystal-plate-hover:hover {
+  background: rgba(255, 255, 255, 0.94);
+  transform: translateY(-2px);
+  box-shadow: 
+    0 24px 50px -10px rgba(14, 165, 233, 0.13),
+    0 10px 24px -6px rgba(15, 23, 42, 0.05),
+    inset 0 1.5px 2px rgba(255, 255, 255, 1),
+    inset 0 -1px 2px rgba(186, 230, 253, 0.3);
+}
+
+/* Botões Táteis com Acabamento Cristalino */
+.crystal-btn {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 
+    0 2px 8px rgba(14, 165, 233, 0.06),
+    inset 0 1px 1.5px rgba(255, 255, 255, 1);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.crystal-btn:hover {
+  background: #FFFFFF;
+  border-color: rgba(56, 189, 248, 0.7);
+  transform: translateY(-1.5px);
+  box-shadow: 
+    0 8px 20px rgba(14, 165, 233, 0.12),
+    inset 0 1px 1.5px rgba(255, 255, 255, 1);
+}
+
+.crystal-btn:active {
+  transform: translateY(0) scale(0.98);
+}

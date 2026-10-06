@@ -1,0 +1,6 @@
+{
+  "name": "Frost Sense",
+  "description": "Monitor de temperatura inteligente e imersivo para refrigeradores com efeito de gelo e vidro fosco.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

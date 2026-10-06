@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Frost Sense · Monitor Térmico</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      user-select: none;
+    }
+
+    body {
+      background-color: #F4F8FC;
+      color: #0F172A;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 2.5rem 1.25rem;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Aurora Mesh Gradient */
+    .aurora-blob-1 {
+      position: fixed;
+      top: -100px;
+      left: -80px;
+      width: 650px;
+      height: 650px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(235, 244, 255, 0.9) 0%, rgba(224, 242, 254, 0.5) 50%, transparent 80%);
+      filter: blur(140px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .aurora-blob-2 {
+      position: fixed;
+      top: 25%;
+      right: -80px;
+      width: 580px;
+      height: 580px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(224, 247, 250, 0.7) 0%, rgba(225, 245, 254, 0.4) 60%, transparent 80%);
+      filter: blur(150px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .aurora-blob-3 {
+      position: fixed;
+      bottom: -150px;
+      left: 30%;
+      width: 700px;
+      height: 550px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(240, 253, 244, 0.5) 0%, rgba(248, 250, 252, 0.9) 60%, transparent 80%);
+      filter: blur(160px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 660px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* Header Minimalista e Forte */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 0.9rem;
+      border-bottom: 1px solid rgba(224, 242, 254, 0.8);
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-emblem-wrap {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0EA5E9, #06B6D4, #14B8A6);
+      padding: 1.5px;
+      box-shadow: 0 4px 16px rgba(6, 182, 212, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .brand-emblem-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #0284C7;
+    }
+
+    .brand-title {
+      font-size: 1.35rem;
+      letter-spacing: -0.025em;
+      line-height: 1;
+      font-weight: 800;
+      color: #0F172A;
+    }
+
+    .brand-sense {
+      font-weight: 800;
+      background: linear-gradient(90deg, #0284C7, #06B6D4, #0D9488);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-sub {
+      font-size: 0.75rem;
+      color: #64748B;
+      margin-top: 0.25rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .pulse-online {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #10B981;
+      box-shadow: 0 0 6px #10B981;
+    }
+
+    .crystal-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 0.9rem;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #334155;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(14, 165, 233, 0.06);
+      transition: all 0.2s ease;
+    }
+
+    .crystal-btn:hover {
+      background: #FFFFFF;
+      border-color: rgba(56, 189, 248, 0.7);
+      transform: translateY(-1px);
+    }
+
+    /* Placa de Cristal Fosco */
+    .crystal-card {
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(22px) saturate(180%);
+      -webkit-backdrop-filter: blur(22px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      border-radius: 24px;
+      padding: 2rem 2.25rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 
+        0 20px 45px -10px rgba(14, 165, 233, 0.08),
+        0 8px 20px -6px rgba(15, 23, 42, 0.03),
+        inset 0 1.5px 2px rgba(255, 255, 255, 1);
+      transition: border-color 0.3s ease;
+    }
+
+    .crystal-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 2rem;
+      right: 2rem;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(6, 182, 212, 0.5), transparent);
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid rgba(241, 245, 249, 0.9);
+    }
+
+    .card-top h2 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #0F172A;
+      letter-spacing: -0.01em;
+    }
+
+    /* Badge Dinâmico de Status */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border: 1px solid #A7F3D0;
+      background: #ECFDF5;
+      color: #047857;
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.12);
+      transition: all 0.3s ease;
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #10B981;
+      box-shadow: 0 0 8px #10B981;
+    }
+
+    .temp-center {
+      text-align: center;
+      padding: 2rem 0 1.5rem 0;
+    }
+
+    .temp-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.85rem;
+      flex-wrap: wrap;
+    }
+
+    /* Herói Visual da Página (68px, Peso 800) */
+    .temp-value {
+      font-family: 'Space Mono', monospace;
+      font-size: 4.5rem;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      color: #0F172A;
+      transition: all 0.3s ease;
+    }
+
+    .temp-unit {
+      font-size: 2.2rem;
+      font-weight: 600;
+      color: #94A3B8;
+      margin-left: 0.2rem;
+    }
+
+    /* Badge de Tendência Elegante e Discreto */
+    .trend-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border: 1px solid #E2E8F0;
+      background: rgba(241, 245, 249, 0.9);
+      color: #475569;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+      transition: all 0.3s ease;
+    }
+
+    .temp-desc {
+      font-size: 0.82rem;
+      color: #64748B;
+      margin-top: 0.6rem;
+      font-weight: 500;
+    }
+
+    /* Indicador Fluido em Onda Suave e Orbe de Luz */
+    .scale-box {
+      margin-top: 0.75rem;
+      padding: 0 0.25rem;
+    }
+
+    .wave-container {
+      position: relative;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.45);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      padding: 0.5rem 0.75rem;
+      box-shadow: inset 0 1.5px 3px rgba(255, 255, 255, 0.9), 0 4px 16px rgba(14, 165, 233, 0.06);
+      overflow: hidden;
+    }
+
+    .scale-labels {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      align-items: center;
+      margin-top: 0.85rem;
+      padding: 0 2px;
+    }
+
+    .label-col-left {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #0369A1;
+    }
+
+    .label-col-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .label-col-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #B45309;
+    }
+
+    .ideal-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.15rem 0.65rem;
+      border-radius: 9999px;
+      background: #ECFDF5;
+      color: #047857;
+      border: 1px solid #A7F3D0;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .sub-range {
+      font-size: 0.65rem;
+      font-family: 'Space Mono', monospace;
+      color: #94A3B8;
+      margin-top: 2px;
+    }
+
+    /* 2 Cards Secundários */
+    .two-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .stat-card {
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding: 1.35rem 1.5rem;
+      box-shadow: 
+        0 20px 45px -10px rgba(14, 165, 233, 0.08),
+        0 8px 20px -6px rgba(15, 23, 42, 0.03),
+        inset 0 1.5px 2px rgba(255, 255, 255, 1);
+    }
+
+    .stat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.85rem;
+    }
+
+    .stat-title-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .stat-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #0F172A;
+      letter-spacing: -0.01em;
+    }
+
+    .badge-24h {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 0.15rem 0.4rem;
+      border-radius: 6px;
+      background: #F1F5F9;
+      color: #475569;
+      border: 1px solid #E2E8F0;
+    }
+
+    .stat-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+    }
+
+    /* 3 Colunas no Histórico */
+    .history-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.5rem;
+      padding-top: 0.15rem;
+    }
+
+    .metric-label {
+      font-size: 0.72rem;
+      color: #64748B;
+      display: block;
+      margin-bottom: 0.2rem;
+      font-weight: 500;
+    }
+
+    .val-max {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #EA580C;
+      font-family: 'Space Mono', monospace;
+    }
+
+    .val-min {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #0284C7;
+      font-family: 'Space Mono', monospace;
+    }
+
+    .val-avg {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #047857;
+      font-family: 'Space Mono', monospace;
+    }
+
+    .stat-content-wifi {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding-top: 0.15rem;
+    }
+
+    .val-wifi {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #0F172A;
+    }
+
+    .val-wifi-pct {
+      font-size: 0.85rem;
+      color: #059669;
+      font-weight: 700;
+    }
+
+    .val-time {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #334155;
+      font-family: 'Space Mono', monospace;
+    }
+
+    /* Simulação */
+    .sim-bar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      color: #64748B;
+      padding-top: 0.25rem;
+      flex-wrap: wrap;
+    }
+
+    .sim-btn {
+      padding: 0.35rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      border: 1px solid #CBD5E1;
+      background: rgba(255, 255, 255, 0.85);
+      cursor: pointer;
+      color: #334155;
+      transition: all 0.15s ease;
+    }
+
+    .sim-btn:hover {
+      background: #FFFFFF;
+      border-color: #94A3B8;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 0.75rem;
+      color: #94A3B8;
+      font-weight: 500;
+      padding-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="aurora-blob-1"></div>
+  <div class="aurora-blob-2"></div>
+  <div class="aurora-blob-3"></div>
+
+  <div class="container">
+    <!-- Header: FrostSense forte + Subtítulo discreto -->
+    <header class="top-bar">
+      <div class="brand-group">
+        <div class="brand-emblem-wrap">
+          <div class="brand-emblem-inner">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <line x1="12" y1="2.5" x2="12" y2="21.5" stroke="#0284C7" stroke-width="2.2" stroke-linecap="round" />
+              <line x1="3.8" y1="7.2" x2="20.2" y2="16.8" stroke="#0284C7" stroke-width="2.2" stroke-linecap="round" />
+              <line x1="3.8" y1="16.8" x2="20.2" y2="7.2" stroke="#0284C7" stroke-width="2.2" stroke-linecap="round" />
+              <path d="M9.5 4.5 L12 2.5 L14.5 4.5" stroke="#06B6D4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M9.5 19.5 L12 21.5 L14.5 19.5" stroke="#06B6D4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              <circle cx="12" cy="12" r="2.2" fill="#0EA5E9" />
+            </svg>
+          </div>
+        </div>
+        <div>
+          <div class="brand-title">
+            Frost<span class="brand-sense">Sense</span>
+          </div>
+          <div class="brand-sub">
+            <span class="pulse-online"></span>
+            <span>Monitoramento em tempo real</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <button class="crystal-btn" onclick="triggerSync()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0284C7" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+            <path d="M3 3v5h5"></path>
+            <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"></path>
+            <path d="M16 21h5v-5"></path>
+          </svg>
+          <span>Atualizar</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- 1. Card Principal de Temperatura: O elemento mais importante da tela -->
+    <div class="crystal-card" id="mainCard">
+      <div class="card-top">
+        <h2>Temperatura da Geladeira</h2>
+        <!-- Badge Dinâmico: Temperatura Ideal vs ⚠️ Alerta de Temperatura -->
+        <div class="status-badge" id="statusBadge">
+          <span class="pulse-dot" id="pulseDot"></span>
+          <span id="statusLabel">Temperatura Ideal</span>
+        </div>
+      </div>
+
+      <div class="temp-center">
+        <div class="temp-row">
+          <div style="display: flex; align-items: baseline; justify-content: center;">
+            <span class="temp-value" id="tempDisplay">+3.2</span>
+            <span class="temp-unit">°C</span>
+          </div>
+
+          <!-- Badge Elegante e Discreto de Tendência ao lado: +3.2°C [→ Estável] -->
+          <div class="trend-pill" id="trendPill">
+            <span id="trendSymbol" style="font-size: 0.85rem; font-weight: 700;">→</span>
+            <span id="trendLabel">Estável</span>
+          </div>
+        </div>
+
+        <div class="temp-desc" id="tempDesc">
+          Conservação segura · Alimentos protegidos
+        </div>
+      </div>
+
+      <!-- Indicador Fluido em Onda Suave e Orbe de Luz (Frio -> Quente) -->
+      <div class="scale-box">
+        <div class="wave-container">
+          <svg viewBox="0 0 500 90" style="width: 100%; height: auto; display: block; overflow: visible;">
+            <defs>
+              <linearGradient id="waveLineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#38BDF8" />
+                <stop offset="35%" stop-color="#0EA5E9" />
+                <stop offset="52%" stop-color="#10B981" />
+                <stop offset="70%" stop-color="#F59E0B" />
+                <stop offset="100%" stop-color="#EF4444" />
+              </linearGradient>
+
+              <linearGradient id="waveFillGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop id="waveFillStop" offset="0%" stop-color="#34D399" stop-opacity="0.22" />
+                <stop offset="60%" stop-color="#38BDF8" stop-opacity="0.06" />
+                <stop offset="100%" stop-color="#0EA5E9" stop-opacity="0.0" />
+              </linearGradient>
+
+              <filter id="orbBloom" x="-60%" y="-60%" width="220%" height="220%">
+                <feGaussianBlur stdDeviation="5" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+
+            <!-- Preenchimento de profundidade abaixo da onda -->
+            <path id="waveAreaPath" fill="url(#waveFillGradient)" style="transition: all 0.6s ease-out;"></path>
+
+            <!-- Divisores das Zonas Seguras (1°C e 5°C) -->
+            <g opacity="0.35">
+              <line id="safeMinLine" x1="188" y1="52" x2="188" y2="82" stroke="#0EA5E9" stroke-width="1.5" stroke-dasharray="2 3"></line>
+              <line id="safeMaxLine" x1="311" y1="52" x2="311" y2="82" stroke="#F59E0B" stroke-width="1.5" stroke-dasharray="2 3"></line>
+            </g>
+
+            <!-- Linha da Onda: Camada de Brilho Difuso (Glow) -->
+            <path id="waveGlowPath" fill="none" stroke="url(#waveLineGradient)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="0.32" style="transition: all 0.6s ease-out;"></path>
+
+            <!-- Linha da Onda: Traço Principal Fluido -->
+            <path id="waveLinePath" fill="none" stroke="url(#waveLineGradient)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="transition: all 0.6s ease-out;"></path>
+
+            <!-- Orbe de Luz Brilhante na Crista -->
+            <g id="orbGroup" style="transition: all 0.6s ease-out;">
+              <!-- 1. Halo pulsante -->
+              <circle id="orbHalo" cx="250" cy="30" r="20" fill="rgba(52, 211, 153, 0.5)" filter="url(#orbBloom)"></circle>
+              <!-- 2. Aura intermediária -->
+              <circle id="orbAura" cx="250" cy="30" r="12" fill="#34D399" opacity="0.6"></circle>
+              <!-- 3. Corpo cerâmico branco -->
+              <circle id="orbBody" cx="250" cy="30" r="8" fill="#FFFFFF" stroke="#059669" stroke-width="2" style="filter: drop-shadow(0px 2px 6px rgba(0,0,0,0.22));"></circle>
+              <!-- 4. Núcleo central -->
+              <circle id="orbCore" cx="250" cy="30" r="3.5" fill="#059669"></circle>
+              <!-- 5. Ponto especular -->
+              <circle id="orbGlance" cx="248.5" cy="28.5" r="1.2" fill="#FFFFFF" opacity="0.95"></circle>
+            </g>
+          </svg>
+        </div>
+
+        <!-- Rótulos Perfeitamente Alinhados -->
+        <div class="scale-labels">
+          <div class="label-col-left">
+            <span>● Muito Frio</span>
+            <span class="sub-range">&lt; 1.0°C</span>
+          </div>
+          <div class="label-col-center">
+            <span class="ideal-pill">
+              <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #10B981;"></span>
+              Ideal
+            </span>
+            <span class="sub-range" style="color: #047857; font-weight: 600;">1.0°C – 5.0°C</span>
+          </div>
+          <div class="label-col-right">
+            <span>Muito Quente ●</span>
+            <span class="sub-range">&gt; 5.0°C</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Dois Cards Secundários: Histórico de temperatura e Conectividade -->
+    <div class="two-cards-grid">
+      
+      <!-- Card 1: Histórico de temperatura + badge 24h -->
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="stat-title-group">
+            <span class="stat-title">Histórico de temperatura</span>
+            <span class="badge-24h">24h</span>
+          </div>
+          <div class="stat-icon" style="background: #EEF2FF; color: #4F46E5;">📊</div>
+        </div>
+        <div class="history-row">
+          <div>
+            <span class="metric-label">Máxima</span>
+            <span class="val-max" id="maxTempDisplay">+4.8°C</span>
+          </div>
+          <div style="border-left: 1px solid #F1F5F9; padding-left: 0.75rem;">
+            <span class="metric-label">Mínima</span>
+            <span class="val-min" id="minTempDisplay">+1.6°C</span>
+          </div>
+          <div style="border-left: 1px solid #F1F5F9; padding-left: 0.75rem;">
+            <span class="metric-label">Média</span>
+            <span class="val-avg" id="avgTempDisplay">+3.1°C</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2: Conectividade -->
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-title">Conectividade</span>
+          <div class="stat-icon" style="background: #ECFDF5; color: #059669;">📶</div>
+        </div>
+        <div class="stat-content-wifi">
+          <div>
+            <span class="metric-label">Sinal Wi-Fi</span>
+            <div style="display: flex; align-items: baseline; gap: 0.35rem; margin-top: 2px;">
+              <span class="val-wifi">Online</span>
+              <span class="val-wifi-pct">· 88%</span>
+            </div>
+          </div>
+          <div style="border-left: 1px solid #F1F5F9; padding-left: 1.25rem;">
+            <span class="metric-label">Sincronização</span>
+            <span class="val-time" id="syncDisplay">Atualizado às 19:01</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Simulação Discreta -->
+    <div class="sim-bar">
+      <span>Testar leitura:</span>
+      <button class="sim-btn" onclick="applyTestScenario(3.2, 'stable')">Ideal (3.2°C →)</button>
+      <button class="sim-btn" onclick="applyTestScenario(0.4, 'down')">Frio (0.4°C ↘)</button>
+      <button class="sim-btn" onclick="applyTestScenario(6.8, 'up')">Quente (6.8°C ↗)</button>
+    </div>
+
+    <!-- Rodapé Limpo -->
+    <footer class="footer">
+      FrostSense · Monitoramento Térmico Inteligente
+    </footer>
+  </div>
+
+  <script>
+    let temperature = 3.2;
+    let maxTemp = 4.8;
+    let minTemp = 1.6;
+    let avgTemp = 3.1;
+    let trend = 'stable';
+
+    function getTimeString() {
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2, '0');
+      const m = String(now.getMinutes()).padStart(2, '0');
+      return `${h}:${m}`;
+    }
+
+    function updateDashboard() {
+      document.getElementById('tempDisplay').textContent = (temperature > 0 ? '+' : '') + temperature.toFixed(1);
+      const timeStr = getTimeString();
+      document.getElementById('syncDisplay').textContent = `Atualizado às ${timeStr}`;
+
+      if (temperature > maxTemp) maxTemp = temperature;
+      if (temperature < minTemp) minTemp = temperature;
+      avgTemp = Math.round(((maxTemp + minTemp) / 2) * 10) / 10;
+
+      document.getElementById('maxTempDisplay').textContent = `+${maxTemp.toFixed(1)}°C`;
+      document.getElementById('minTempDisplay').textContent = `+${minTemp.toFixed(1)}°C`;
+      document.getElementById('avgTempDisplay').textContent = `+${avgTemp.toFixed(1)}°C`;
+
+      const minS = -4;
+      const maxS = 10;
+      const pct = Math.max(0, Math.min(100, ((temperature - minS) / (maxS - minS)) * 100));
+
+      // Dimensões da Onda Fluida SVG
+      const waveWidth = 500;
+      const waveHeight = 90;
+      const orbX = 35 + (pct / 100) * (waveWidth - 70);
+
+      const getWaveY = (x) => {
+        const base = 57;
+        const flow = 6 * Math.sin((x / waveWidth) * Math.PI * 2.2 - 0.4);
+        const dist = x - orbX;
+        const peakHeight = 27;
+        const peakSpread = 48;
+        const crest = peakHeight * Math.exp(-(dist * dist) / (2 * peakSpread * peakSpread));
+        return base - flow - crest;
+      };
+
+      const orbY = getWaveY(orbX);
+
+      // Gera pontos da curva
+      let wavePointsD = '';
+      for (let i = 0; i <= 50; i++) {
+        const x = (i / 50) * waveWidth;
+        const y = getWaveY(x);
+        wavePointsD += (i === 0 ? `M ${x.toFixed(1)} ${y.toFixed(1)}` : ` L ${x.toFixed(1)} ${y.toFixed(1)}`);
+      }
+
+      document.getElementById('waveLinePath').setAttribute('d', wavePointsD);
+      document.getElementById('waveGlowPath').setAttribute('d', wavePointsD);
+      document.getElementById('waveAreaPath').setAttribute('d', `${wavePointsD} L ${waveWidth} ${waveHeight} L 0 ${waveHeight} Z`);
+
+      // Atualiza posição do Orbe
+      const orbGroup = document.getElementById('orbGroup');
+      document.getElementById('orbHalo').setAttribute('cx', orbX);
+      document.getElementById('orbHalo').setAttribute('cy', orbY);
+      document.getElementById('orbAura').setAttribute('cx', orbX);
+      document.getElementById('orbAura').setAttribute('cy', orbY);
+      document.getElementById('orbBody').setAttribute('cx', orbX);
+      document.getElementById('orbBody').setAttribute('cy', orbY);
+      document.getElementById('orbCore').setAttribute('cx', orbX);
+      document.getElementById('orbCore').setAttribute('cy', orbY);
+      document.getElementById('orbGlance').setAttribute('cx', orbX - 1.5);
+      document.getElementById('orbGlance').setAttribute('cy', orbY - 1.5);
+
+      // Divisores de limites
+      const safeMinX = 35 + ((1.0 - minS) / (maxS - minS)) * (waveWidth - 70);
+      const safeMaxX = 35 + ((5.0 - minS) / (maxS - minS)) * (waveWidth - 70);
+      document.getElementById('safeMinLine').setAttribute('y1', getWaveY(safeMinX));
+      document.getElementById('safeMaxLine').setAttribute('y1', getWaveY(safeMaxX));
+
+      // Atualização do Indicador de Tendência
+      const trendPill = document.getElementById('trendPill');
+      const trendSymbol = document.getElementById('trendSymbol');
+      const trendLabel = document.getElementById('trendLabel');
+
+      if (trend === 'up') {
+        trendSymbol.textContent = '↗';
+        trendLabel.textContent = 'Subindo';
+        trendPill.style.background = '#FFF7ED';
+        trendPill.style.color = '#C2410C';
+        trendPill.style.borderColor = '#FED7AA';
+      } else if (trend === 'down') {
+        trendSymbol.textContent = '↘';
+        trendLabel.textContent = 'Descendo';
+        trendPill.style.background = '#F0F9FF';
+        trendPill.style.color = '#0369A1';
+        trendPill.style.borderColor = '#BAE6FD';
+      } else {
+        trendSymbol.textContent = '→';
+        trendLabel.textContent = 'Estável';
+        trendPill.style.background = '#F1F5F9';
+        trendPill.style.color = '#475569';
+        trendPill.style.borderColor = '#E2E8F0';
+      }
+
+      // Lógica Dinâmica do Status e Cores do Orbe
+      const badge = document.getElementById('statusBadge');
+      const statusLabel = document.getElementById('statusLabel');
+      const tempDesc = document.getElementById('tempDesc');
+      const mainCard = document.getElementById('mainCard');
+
+      const orbHalo = document.getElementById('orbHalo');
+      const orbAura = document.getElementById('orbAura');
+      const orbBody = document.getElementById('orbBody');
+      const orbCore = document.getElementById('orbCore');
+      const waveFillStop = document.getElementById('waveFillStop');
+
+      let orbColor = '#059669';
+      let orbGlow = '#34D399';
+      let haloColor = 'rgba(52, 211, 153, 0.5)';
+
+      if (temperature > 5.0 || temperature < 1.0) {
+        badge.style.background = '#FFE4E6';
+        badge.style.color = '#9F1239';
+        badge.style.borderColor = '#FDA4AF';
+        statusLabel.textContent = '⚠️ Alerta de Temperatura';
+        mainCard.style.borderColor = '#FDA4AF';
+
+        if (temperature > 5.0) {
+          orbColor = '#EA580C';
+          orbGlow = '#FB923C';
+          haloColor = 'rgba(251, 146, 60, 0.5)';
+          tempDesc.textContent = 'Temperatura elevada · Risco de deterioração de alimentos';
+        } else {
+          orbColor = '#0284C7';
+          orbGlow = '#38BDF8';
+          haloColor = 'rgba(56, 189, 248, 0.5)';
+          tempDesc.textContent = 'Temperatura muito baixa · Risco de congelamento';
+        }
+      } else {
+        badge.style.background = '#ECFDF5';
+        badge.style.color = '#047857';
+        badge.style.borderColor = '#A7F3D0';
+        statusLabel.textContent = 'Temperatura Ideal';
+        mainCard.style.borderColor = 'rgba(255, 255, 255, 0.95)';
+        tempDesc.textContent = 'Conservação segura · Alimentos protegidos';
+      }
+
+      orbHalo.setAttribute('fill', haloColor);
+      orbAura.setAttribute('fill', orbGlow);
+      orbBody.setAttribute('stroke', orbColor);
+      orbCore.setAttribute('fill', orbColor);
+      waveFillStop.setAttribute('stop-color', orbGlow);
+    }
+
+    function triggerSync() {
+      const delta = Math.random() * 0.4 - 0.2;
+      trend = delta > 0.05 ? 'up' : (delta < -0.05 ? 'down' : 'stable');
+      temperature = Math.round((3.2 + delta) * 10) / 10;
+      updateDashboard();
+    }
+
+    function applyTestScenario(t, tr) {
+      trend = tr;
+      temperature = t;
+      updateDashboard();
+    }
+
+    document.getElementById('syncDisplay').textContent = `Atualizado às ${getTimeString()}`;
+  </script>
+</body>
+</html>
